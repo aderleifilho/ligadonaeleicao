@@ -179,6 +179,9 @@ a:hover {
         }
 
         eventos.carregarListView = function (dataSource) {
+
+            $('#listView').show();
+            $('#pager').show();
             $("#listView").kendoListView({
                 dataSource: dataSource,
                 template: kendo.template($("#template").html()),
@@ -347,4 +350,6 @@ a:hover {
             return tmp;
         }
 
+        $('#listView').hide();
+        $('#pager').hide();
     </script>

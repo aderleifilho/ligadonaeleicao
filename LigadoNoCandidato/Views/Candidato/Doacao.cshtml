@@ -18,6 +18,10 @@
         <br />
     </div>
 </script>
+
+
+<div id="loader" style="position: absolute; display: block; background: url(http://aderleifilho.com/hackathon/loading.gif) no-repeat center center; top: 0px; left: 0px; width: 100%; height: 100%; ">
+</div>
 <div id="chartdiv"></div>	
 <div class="demo-section">
     <div id="listView"></div>
@@ -53,6 +57,7 @@
                         doadores.push({ candidado: presidente, doacoes: doacoes });
                     }).always(function (doacoes) {
                         if (doadores.length == presidentes.length) {
+                            $('#loader').hide()
                             $("#listView").kendoListView({
                                 dataSource: {
                                     data: doadores
@@ -78,6 +83,7 @@
                                             "type": "pie",
                                             "titles": [
                                   {
+                                      "text": "",
                                       "size": 15
                                   }
                                             ],
@@ -87,7 +93,7 @@
                                             "titleField": "nome",
                                             "outlineAlpha": 0.4,
                                             "depth3D": 15,
-                                            "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+                                            "balloonText": "[[title]]<br><span style='font-size:14px'>([[percents]]%)</span>",
                                             "angle": 30,
                                             "exportConfig": {
                                                 menuItems: [{
