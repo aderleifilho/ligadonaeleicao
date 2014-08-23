@@ -132,6 +132,7 @@ footer {
     font-family: Rockwell, Consolas, "Courier New", Courier, monospace;
     font-size: 2.3em;
     margin: 0;
+    margin-bottom: 20px;
 }
 
 .site-title a, .site-title a:hover, .site-title a:active {
@@ -642,6 +643,10 @@ tr.pager td {
 ********************/
 @media only screen and (max-width: 850px) {
 
+    .index-content {
+    width: 100% !important;
+}
+
     .selCargo {
     width: 100% !important;
 }
@@ -828,4 +833,29 @@ tr.pager td {
 
 #candidatos {
     margin-top:200px;
+}
+
+
+/* CSS para página de Detalhe*/
+
+.detalhe-foto {
+    float: right;
+}
+
+.detalhe-info {
+    min-width: 700px;
+    float: left;
+}
+
+label {
+    display: inline;
+}
+
+.detalhe-categoria {
+    font-size: 28px;
+}
+
+.grafico {
+    width: 640px;
+    margin: 0 auto;
 }
