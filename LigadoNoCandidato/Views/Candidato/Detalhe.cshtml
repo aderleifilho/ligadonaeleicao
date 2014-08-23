@@ -2,6 +2,10 @@
     ViewBag.Title = "Detalhe";
 }
 <script src="http://cdn.kendostatic.com/2014.2.716/js/jquery.min.js"></script>
+<script src="http://cdn.kendostatic.com/2014.2.716/js/kendo.all.min.js"></script>
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/amcharts.js"></script>
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/serial.js"></script>
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/themes/none.js"></script>
 
 <article>
     <p>
@@ -49,14 +53,84 @@
     <p>
         <strong>Bens Declarados</strong> 
         <br />
-        <ul id="bens">
-
-        </ul>
+        <div id="chartdiv"></div>	
     </p>
 
 </article>
 
 <script>
+
+    var inflacao = [
+        {
+            ano: 2002,
+            taxa: 112.13
+        },
+        {
+            ano: 2006,
+            taxa: 53.76
+        },
+        {
+            ano: 2010,
+            taxa: 27.25
+        },
+        {
+            ano: 2014,
+            taxa: 0
+        }
+    ]
+    function gerarGraficoBens(dataSource) {
+
+        var chart = AmCharts.makeChart("chartdiv", {
+            "theme": "none",
+            "type": "serial",
+            "autoMargins": false,
+            "marginLeft": 8,
+            "marginRight": 8,
+            "marginTop": 10,
+            "marginBottom": 26,
+            "pathToImages": "http://www.amcharts.com/lib/3/images/",
+            "dataProvider": dataSource,
+            "valueAxes": [{
+                "axisAlpha": 0,
+                "inside": true
+            }],
+            "graphs": [{
+                "useNegativeColorIfDown": true,
+                "balloonText": "[[category]]<br><b>value: [[value]]</b>",
+                "bullet": "round",
+                "bulletBorderAlpha": 1,
+                "bulletBorderColor": "#FFFFFF",
+                "hideBulletsCount": 50,
+                "lineThickness": 2,
+                "lineColor": "#fdd400",
+                "negativeLineColor": "#67b7dc",
+                "valueField": "montante"
+            }],
+            "chartScrollbar": {
+            },
+            "chartCursor": {
+            },
+            "categoryField": "ano",
+            "categoryAxis": {
+                "parseDates": true,
+                "axisAlpha": 0,
+                "minHorizontalGap": 60
+            }
+        });
+
+        chart.addListener("dataUpdated", zoomChart);
+        //zoomChart();
+
+        function zoomChart() {
+            if (chart.zoomToIndexes) {
+                chart.zoomToIndexes(130, chartData.length - 1);
+            }
+        }
+
+    }
+   
+
+
     $(document).ready(function () {
 
         var candidato = localStorage.getItem("candidato");
@@ -78,8 +152,52 @@
                 if (bens) {
                     try {
                         bens = JSON.parse(bens);
+                        bens.forEach(function(item){
+                            item.montante =  parseFloat(item.montante);
+                        })
+                        console.log(bens);
+                        var dataSource = new kendo.data.DataSource({
+                            data: bens,
+                            group: {
+                                field: "ano",
+                                aggregates:[
+                                {field: 'montante', aggregate: 'sum'}
+                        ]
+                            }
+                        });
+                        
+                        dataSource.fetch(function () {
+                            var view = dataSource.view();
+                            var retornoAgrupado = view.map(function (item) {
+                                return {
+                                    ano: item.value,
+                                    montante: item.aggregates.montante.sum
+                                }
+                            });
+
+                            function retornaValorCorrigidoVariacao(ano_valor) {
+                                for(var x = 0; x < inflacao.length; x++){
+                                    if (ano_valor.ano == inflacao[x].ano) {
+                                        ano_valor.montante += ano_valor.montante * (inflacao[x].taxa / 100)
+                                        ano_valor.ano = new Date(ano_valor.ano, 05, 01);
+                                        return ano_valor;
+                                    }
+                                   
+                                }
+                            }
+                            retornoAgrupado = retornoAgrupado.map(function (data) {
+
+                                return retornaValorCorrigidoVariacao(data)
+                            });
+
+                            gerarGraficoBens(retornoAgrupado);
+
+                            
+                           
+                        });
+                       
                         if (bens.length > 0) {
-                            bens.forEach(function (bem) {
+                            bens.forEach(function (bem) {e
                                 $('#bens').append("<li><strong>Ano:</strong> " + bem.ano + "<br /> <strong>Declaração:</strong> " + bem.bem + " <br /> <strong> Valor:</strong> R$ " + bem.montante + "<br /> <br /></li>");
                             })
                         }
@@ -104,3 +222,11 @@
 
     })
 </script>
+
+<style>
+    #chartdiv {
+	width		: 100%;
+	height		: 500px;
+	font-size	: 11px;
+}		
+</style>
