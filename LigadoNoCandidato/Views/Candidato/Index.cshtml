@@ -309,7 +309,9 @@ a:hover {
                             $.when(requestBens).done(function (bens) {
                                 var total = 0;
                                 bens.forEach(function (bem) {
-                                    total += parseInt(bem.montante)
+                                    var ano = new Date();
+                                    if(bem.ano == ano.getFullYear())
+                                     total += parseFloat(bem.montante)
                                 })
 
                                 $('#bens_declarados_template').text("R$ " + total);

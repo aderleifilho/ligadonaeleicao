@@ -2,10 +2,11 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Ligado no candidato</title>
+        <title>Ligado na Eleição!</title>
         <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
         <link href='http://fonts.googleapis.com/css?family=Changa+One' rel='stylesheet' type='text/css'>
         <meta name="viewport" content="width=device-width" />
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-53f8afc853c43b30"></script>
               @Styles.Render("~/Content/css")
               @Scripts.Render("~/bundles/modernizr")
     </head>
@@ -22,7 +23,6 @@
             
                             <li>@Html.ActionLink("Explorar", "Index", "Candidato")</li>
                             <li>@Html.ActionLink("Gráficos", "Grafico", "Candidato")</li>
-                            <li>@Html.ActionLink("Contato", "Contact", "Home")</li>
                         </ul>
                 
                     </nav>
@@ -30,6 +30,7 @@
             </div>
         </header>
         <div id="body">
+
             @RenderSection("featured", required: false)
             <section class="content-wrapper main-content clear-fix">
                 @RenderBody()
