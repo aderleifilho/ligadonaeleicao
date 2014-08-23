@@ -1,0 +1,155 @@
+﻿@{
+    ViewBag.Title = "Grafico";
+}
+<link href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.common.min.css" rel="stylesheet" />
+<link href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.metro.min.css" rel="stylesheet" />
+<script src="http://cdn.kendostatic.com/2014.2.716/js/jquery.min.js"></script>
+<script src="http://cdn.kendostatic.com/2014.2.716/js/kendo.all.min.js"></script>
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/amcharts.js"></script>
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/pie.js"></script>
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/themes/none.js"></script>
+<div id="example">
+        <section>
+            <div>
+                <h4>Selecione um estado</h4>
+                <input id="estados" style="width: 200px" required />
+            </div>
+            <div>
+                <h4>Selecione um partido</h4>
+                <input id="partidos" style="width: 200px" required/>
+            </div>
+
+        </section>
+
+    <div id="chartdiv"></div>	
+    <script>
+
+        var urlPadrao = "http://api.transparencia.org.br:80/sandbox/v1/"
+        var publicToken = "O0BkkGjZhhF2"
+        var id = "";
+
+
+        function criarGrafico(retorno_server) {
+
+            var dataSource = new kendo.data.DataSource({
+                data: retorno_server,
+                // group by the "category" field
+                group: {
+                    field: "instrucao", 
+                    aggregates: [ {
+                        field: "instrucao", aggregate : "count"
+                    }]
+                }
+            });
+           dataSource.fetch(function () {
+              var view = dataSource.view();
+
+              view = view.map(function (item) {
+                  return {
+                      tipo: item.value,
+                      quant: item.aggregates.instrucao.count
+                  }
+              })
+
+
+              var chart = AmCharts.makeChart("chartdiv", {
+                  "type": "pie",
+                  "titles": [
+		{
+		    "text": "Escolaridade dos candidatos por estado",
+		    "size": 15
+		}
+                  ],
+                  "theme": "none",
+                  "dataProvider": view,
+                  "valueField": "quant",
+                  "titleField": "tipo",
+                  "outlineAlpha": 0.4,
+                  "depth3D": 15,
+                  "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+                  "angle": 30,
+                  "exportConfig": {
+                      menuItems: [{
+                          icon: 'http://www.amcharts.com/lib/3/images/export.png',
+                          format: 'png'
+                      }]
+                  }
+              });
+
+          });
+
+ 
+        }
+
+        function start() {
+
+            var buscarCandidatos = function (estado, partido, callback) {
+                var request = $.ajax({
+                    url: urlPadrao + "candidatos?estado=" + estado + "&partido=" + partido + "&_limit=1000",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('APP-Token', publicToken)
+                    }
+                });
+
+                $.when(request).done(callback);
+            }
+
+            var checarBusca = function () {
+
+                if ($('#estados').val() && $('#partidos').val()) {
+                    buscarCandidatos($('#estados').val(), $('#partidos').val(), criarGrafico);
+                }
+            }
+
+            $("#partidos").kendoComboBox({
+                placeholder: "Selecione o partido",
+                dataTextField: "sigla",
+                dataValueField: "partidoId",
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: urlPadrao + "partidos",
+                            dataType: "json",
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('APP-Token', publicToken);
+                            }
+                        }
+                    }
+                },
+                change: checarBusca
+            });
+
+
+            $("#estados").kendoComboBox({
+                placeholder: "Selecione o estado",
+                dataTextField: "nome",
+                dataValueField: "sigla",
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: urlPadrao + "estados",
+                            dataType: "json",
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('APP-Token', publicToken)
+                            }
+                        }
+                    }
+                },
+                change: checarBusca
+            });
+
+
+        }
+
+        $(document).ready(start);
+       
+    </script>
+</div>
+
+<style>
+    #chartdiv {
+	width		: 100%;
+	height		: 500px;
+	font-size	: 11px;
+}
+</style>

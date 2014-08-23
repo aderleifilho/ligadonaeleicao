@@ -1,0 +1,339 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+a:hover {
+  cursor:pointer;
+ }
+</style>
+<title></title>
+<link href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.common.min.css" rel="stylesheet" />
+<link href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.metro.min.css" rel="stylesheet" />
+<script src="http://cdn.kendostatic.com/2014.2.716/js/jquery.min.js"></script>
+<script src="http://cdn.kendostatic.com/2014.2.716/js/kendo.all.min.js"></script>
+
+
+    <div id="content_partidos">
+        <p><h3>Selecione os filtros, e passe o mouse sobre as fotos dos candidatos para saber detalhes sobre cada um.</h3></p>
+
+        <div class="demo-section k-header">
+            <h4>Selecione um cargo</h4>
+            <input id="cargos" style="width: 200px" />
+        </div>
+
+        <div class="demo-section k-header">
+            <h4>Selecione um estado</h4>
+            <input id="estados" style="width: 200px" />
+        </div>
+
+        <div class="demo-section k-header">
+            <h4>Selecione um partido</h4>
+            <input id="partidos" style="width: 200px" />
+        </div>
+
+    </div>
+
+    <div id="candidatos">
+
+        <div class="demo-section">
+            <div id="listView"></div>
+            <div id="pager" class="k-pager-wrap"></div>
+        </div>
+
+        <script type="text/x-kendo-template" id="template">
+            <div class="product">
+                <img id="#=id #" src="#= foto #" />
+                <h3>#:nome#</h3>
+            </div>
+        </script>
+
+        <script id="template2" type="text/x-kendo-template">
+            <div class="product">
+                <img id="foto_template" />
+                <strong id="nome_template"> </strong><br />
+                <strong>Formação</strong>
+                <label id="escolaridade_template"></label><br />
+                <strong>Gasto estimado</strong><br />
+                <label id="estimativa_template"></label><br />
+                <strong>Valor de bens declarados</strong><br />
+                <label id="bens_declarados_template"></label>
+                <strong>Reeleição?</strong><br />
+                <label id="reeleicao_template"></label><br />
+                <a href="/Candidato/Detalhe"> Mais detalhes</a>
+            </div>
+        </script>
+
+        <style scoped>
+            .demo-section {
+                margin: 20px auto;
+                border: 0;
+                background: none;
+                width: 577px;
+            }
+
+            #listView {
+                padding: 10px;
+                margin-bottom: -1px;
+                min-width: 555px;
+                min-height: 510px;
+            }
+
+            .product {
+                float: left;
+                position: relative;
+                width: 111px;
+                height: 170px;
+                margin: 0;
+                padding: 0;
+            }
+
+                .product img {
+                    width: 110px;
+                    height: 110px;
+                }
+
+                .product h3 {
+                    margin: 0;
+                    padding: 3px 5px 0 0;
+                    max-width: 96px;
+                    overflow: hidden;
+                    line-height: 1.1em;
+                    font-size: .9em;
+                    font-weight: normal;
+                    text-transform: uppercase;
+                    color: #999;
+                }
+
+                .product p {
+                    visibility: hidden;
+                }
+
+                .product:hover p {
+                    visibility: visible;
+                    position: absolute;
+                    width: 110px;
+                    height: 110px;
+                    top: 0;
+                    margin: 0;
+                    padding: 0;
+                    line-height: 110px;
+                    vertical-align: middle;
+                    text-align: center;
+                    color: #fff;
+                    background-color: rgba(0,0,0,0.75);
+                    transition: background .2s linear, color .2s linear;
+                    -moz-transition: background .2s linear, color .2s linear;
+                    -webkit-transition: background .2s linear, color .2s linear;
+                    -o-transition: background .2s linear, color .2s linear;
+                }
+
+            .k-listview:after {
+                content: ".";
+                display: block;
+                height: 0;
+                clear: both;
+                visibility: hidden;
+            }
+        </style>
+    </div>
+
+    <script type="text/javascript">
+        var urlPadrao = "http://api.transparencia.org.br:80/sandbox/v1/"
+        var publicToken = "O0BkkGjZhhF2"
+        var id = "";
+
+        var filtros = {};
+        var eventos = {};
+        var dataSourceVerificar = {};
+
+        eventos.selectCombo = function (e) {
+            eventos.carregarListView(
+                     filtros.buscarCandidatos(
+                        $('#estados').val(),
+                        $('#partidos').val(),
+                        $('#cargos').val()
+                        )
+                        );
+        }
+
+        filtros.buscarCandidatos = function (estado, partido, cargo) {
+            return new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: urlPadrao + "candidatos?estado=" + estado + "&partido=" + partido + "&cargo=" + cargo + "&_limit=500",
+                        dataType: "json",
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('APP-Token', publicToken)
+                        }
+
+                    }
+                },
+                pageSize: 15,
+
+                error: function (e) {
+                    console.log("erro");
+                }
+
+            });
+
+        }
+
+        eventos.carregarListView = function (dataSource) {
+            $("#listView").kendoListView({
+                dataSource: dataSource,
+                template: kendo.template($("#template").html()),
+                change: function(){
+                    var index = this.select().index(),
+                     dataItem = this.dataSource.view()[index];
+                    if (dataItem) {
+                        localStorage.setItem("candidato", JSON.stringify(dataItem));
+                         var requestBens = $.ajax({
+                             url: urlPadrao + "candidatos/" + dataItem.id + "/bens",
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader("APP-Token", publicToken);
+                                }
+
+                            });
+                            $.when(requestBens).done(function (bens) {
+                                localStorage.setItem("bens", JSON.stringify(bens));
+                                location.href = "/Candidato/Detalhe";
+                            });
+                    }
+                },
+                selectable: 'single',
+            });
+
+
+            $("#pager").kendoPager({
+                dataSource: dataSource
+            });
+
+        }
+
+        $(document).ready(function () {
+            $("#partidos").kendoComboBox({
+                placeholder: "Selecione o partido",
+                dataTextField: "sigla",
+                dataValueField: "partidoId",
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: urlPadrao + "partidos",
+                            dataType: "json",
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('APP-Token', publicToken);
+                            }
+                        }
+                    }
+                },
+                change: eventos.selectCombo
+            });
+
+
+
+            $("#estados").kendoComboBox({
+                placeholder: "Selecione o estado",
+                dataTextField: "nome",
+                dataValueField: "sigla",
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: urlPadrao + "estados",
+                            dataType: "json",
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('APP-Token', publicToken)
+                            }
+                        }
+                    }
+                },
+                change: eventos.selectCombo
+            });
+
+
+            $("#cargos").kendoComboBox({
+                placeholder: "Selecione o cargo",
+                dataTextField: "nome",
+                dataValueField: "cargoId",
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: urlPadrao + "cargos",
+                            dataType: "json",
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('APP-Token', publicToken)
+                            }
+                        }
+                    }
+                },
+                change: eventos.selectCombo
+            });
+
+            $("#listView").kendoTooltip({
+                content: function (e) {
+                    id = e.target.context.id;
+                    return kendo.template($("#template2").html());
+                },
+                width: 250,
+                height: 500,
+                position: "left",
+                filter: "img",
+                show: function () {
+                    var request = $.ajax({
+                        url: urlPadrao + "candidatos/" + id,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("APP-Token", publicToken);
+                        }
+
+                    });
+
+                    $.when(request).done(function (retorno) {
+                        if (retorno) {
+                            $('#foto_template').attr('src', retorno.foto);
+                            $('#nome_template').text(retorno.nome);
+                            $('#escolaridade_template').text(retorno.instrucao);
+                            $('#estimativa_template').text('R$ ' + retorno.previsao);
+                            if (retorno.reeleicao) {
+                                $('#reeleicao_template').text("Sim")
+                            } else {
+                                $("#reeleicao_template").text("Não")
+                            }
+                            localStorage.setItem("candidato", JSON.stringify(retorno));
+                            var requestBens = $.ajax({
+                                url: urlPadrao + "candidatos/" + id + "/bens",
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader("APP-Token", publicToken);
+                                }
+
+                            });
+                            $.when(requestBens).done(function (bens) {
+                                var total = 0;
+                                bens.forEach(function (bem) {
+                                    total += parseInt(bem.montante)
+                                })
+
+                                $('#bens_declarados_template').text("R$ " + total);
+                                localStorage.setItem("bens", JSON.stringify(bens));
+                            });
+                        }
+
+                    })
+                },
+
+                animation: {
+                    open: {
+                        effects: "zoom:in slideIn:right",
+                        duration: 200
+                    },
+                    close: {
+                        effects: "zoom:in slideIn:right",
+                        reverse: true,
+                        duration: 200
+                    }
+                }
+            });
+
+
+        });
+
+    </script>

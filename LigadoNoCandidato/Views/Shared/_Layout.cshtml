@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Ligado no candidato</title>
+        <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <meta name="viewport" content="width=device-width" />
+              @Styles.Render("~/Content/css")
+              @Scripts.Render("~/bundles/modernizr")
+    </head>
+    <body>
+        <header>
+            <div class="content-wrapper">
+                <div class="float-left">
+                    <p class="site-title">@Html.ActionLink("Ligado na Eleição", "Index", "Home")</p>
+                </div>
+                <div class="float-right">
+                    <nav>
+                        <ul id="menu">
+                            <li>@Html.ActionLink("Inicio", "Index", "Home")</li>
+            
+                            <li>@Html.ActionLink("Explorar", "Index", "Candidato")</li>
+                            <li>@Html.ActionLink("Gráficos", "Grafico", "Candidato")</li>
+                            <li>@Html.ActionLink("Contato", "Contact", "Home")</li>
+                        </ul>
+                
+                    </nav>
+                </div>
+            </div>
+        </header>
+        <div id="body">
+            @RenderSection("featured", required: false)
+            <section class="content-wrapper main-content clear-fix">
+                @RenderBody()
+            </section>
+        </div>
+        <footer>
+            <div class="content-wrapper">
+                <div class="float-left">
+                    <p> <strong> <h1> &copy; @DateTime.Now.Year - Ligado na Eleição. Desenvolvido por Guilherme Andrade.</h1> </strong></p>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>

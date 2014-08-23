@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "Detalhe";
+}
+<script src="http://cdn.kendostatic.com/2014.2.716/js/jquery.min.js"></script>
+
+<article>
+    <p>
+        <img id="foto"/>
+    </p>
+
+    <p>
+     <strong>Nome: </strong>  <label id="nome"></label>
+    </p>
+
+    <p>
+      <strong>Apelido: </strong> <label id="apelido"> </label>
+    </p>
+
+    <p>
+        <strong>Idade: </strong> <label id="idade"> </label>
+    </p>
+
+    <p>
+        <strong>Partido: </strong> <label id="partido"> </label>
+    </p>
+
+    <p>
+        <strong>Previsão de gasto </strong> <label id="previsao"> </label>
+    </p>
+
+    <p>
+        <strong>Cargo Atual: </strong> <label id="cargo_atual"> </label>
+    </p>
+    <p>
+        <strong>Cargo Desejado: </strong> <label id="cargo"> </label>
+    </p>
+
+    <p>
+        <strong>Reeleição? </strong> <label id="reeleicao"> </label>
+    </p>
+
+    <p>
+        <strong>Mini biográfia </strong> <label id="biografia"> </label>
+    </p>
+    <p>
+        <strong>Processos Jurídicos </strong> <label id="processos"> </label>
+    </p>
+
+    <p>
+        <strong>Bens Declarados</strong> 
+        <br />
+        <ul id="bens">
+
+        </ul>
+    </p>
+
+</article>
+
+<script>
+    $(document).ready(function () {
+
+        var candidato = localStorage.getItem("candidato");
+        if (candidato) {
+            try {
+                candidato = JSON.parse(candidato);
+
+                $('#foto').attr('src', candidato.foto);
+                $('#nome').text(candidato.nome);
+                $('#apelido').text(candidato.apelido);
+                $('#idade').text(candidato.idade);
+                $('#partido').text(candidato.partido);
+                $('#cargo_atual').text(candidato.ocupacao);
+                $('#cargo').text(candidato.cargo);
+                $('#previsao').text("R$ " + candidato.previsao);
+                $('#processos').html(candidato.processos);
+
+                var bens = localStorage.getItem("bens");
+                if (bens) {
+                    try {
+                        bens = JSON.parse(bens);
+                        if (bens.length > 0) {
+                            bens.forEach(function (bem) {
+                                $('#bens').append("<li><strong>Ano:</strong> " + bem.ano + "<br /> <strong>Declaração:</strong> " + bem.bem + " <br /> <strong> Valor:</strong> R$ " + bem.montante + "<br /> <br /></li>");
+                            })
+                        }
+
+                    } catch (e) {
+                        
+                    }
+                }
+                if (candidato.reeleicao) {
+                    $('#reeleicao').text("Sim");
+                } else {
+                    $('#reeleicao').text("Não");
+                }
+                $("#biografia").text(candidato.miniBio)
+
+            } catch (e) {
+                alert("Selecione pra ver o detalhe do candidato")
+            }
+        } else {
+            alert("Selecione pra ver o detalhe do candidato")
+        }
+
+    })
+</script>
