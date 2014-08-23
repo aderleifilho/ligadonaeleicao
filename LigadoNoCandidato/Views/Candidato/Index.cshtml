@@ -50,8 +50,6 @@ a:hover {
 
         <script id="template2" type="text/x-kendo-template">
             <div class="product">
-                <img id="foto_template" />
-                <strong id="nome_template"> </strong><br />
                 <strong>Formação</strong>
                 <label id="escolaridade_template"></label><br />
                 <strong>Gasto estimado</strong><br />
@@ -69,7 +67,7 @@ a:hover {
                 margin: 20px auto;
                 border: 0;
                 background: none;
-                width: 960;
+                width: 960px;
             }
 
             #listView {
@@ -84,18 +82,18 @@ a:hover {
                 width: 111px;
                 height: 170px;
                 margin: 0;
-                padding: 0;
+                padding: 5px;
             }
 
                 .product img {
                     width: 110px;
-                    height: 110px;
+                    height: 130px;
                 }
 
                 .product h3 {
                     margin: 0;
                     padding: 3px 5px 0 0;
-                    max-width: 96px;
+                    max-width: 180px;
                     overflow: hidden;
                     line-height: 1.1em;
                     font-size: .9em;
@@ -111,14 +109,14 @@ a:hover {
                 .product:hover p {
                     visibility: visible;
                     position: absolute;
-                    width: 110px;
+                    width: 120px;
                     height: 110px;
                     top: 0;
                     margin: 0;
                     padding: 0;
                     line-height: 110px;
                     vertical-align: middle;
-                    text-align: center;
+                    text-align: left;
                     color: #fff;
                     background-color: rgba(0,0,0,0.75);
                     transition: background .2s linear, color .2s linear;
@@ -273,8 +271,8 @@ a:hover {
                     id = e.target.context.id;
                     return kendo.template($("#template2").html());
                 },
-                width: 250,
-                height: 500,
+                width: 135,
+                height: 300,
                 position: "left",
                 filter: "img",
                 show: function () {
@@ -288,8 +286,6 @@ a:hover {
 
                     $.when(request).done(function (retorno) {
                         if (retorno) {
-                            $('#foto_template').attr('src', retorno.foto);
-                            $('#nome_template').text(retorno.nome);
                             $('#escolaridade_template').text(retorno.instrucao);
                             $('#estimativa_template').text('R$ ' + formatReal(parseFloat(retorno.previsao).toFixed(2)));
                             if (retorno.reeleicao) {
