@@ -26,5 +26,12 @@ namespace LigadoNoCandidato.Controllers
             return View();
         }
 
+        public ActionResult Doacao()
+        {
+
+            return View();
+
+        }
+
     }
 }

@@ -1,0 +1,200 @@
+﻿@{
+    ViewBag.Title = "Doacao";
+}
+
+<link href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.common.min.css" rel="stylesheet" />
+<link href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.metro.min.css" rel="stylesheet" />
+<script src="http://cdn.kendostatic.com/2014.2.716/js/jquery.min.js"></script>
+<script src="http://cdn.kendostatic.com/2014.2.716/js/kendo.all.min.js"></script>
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/amcharts.js"></script>
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/pie.js"></script>
+<script type="text/javascript" src="http://www.amcharts.com/lib/3/themes/none.js"></script>
+
+<h2>Doações de empresas a candidatos a presidência da eleição de 2010</h2>
+<script type="text/x-kendo-template" id="template">
+    <div class="product">
+        <img id="#=candidado.id #" src="#= candidado.foto #" />
+        <h3>#:candidado.nome#</h3>
+        <br />
+    </div>
+</script>
+<div id="chartdiv"></div>	
+<div class="demo-section">
+    <div id="listView"></div>
+</div>
+
+
+<script>
+    var urlPadrao = "http://api.transparencia.org.br:80/sandbox/v1/"
+    var publicToken = "O0BkkGjZhhF2"
+    var id = "";
+
+    var doadores = []
+    function start() {
+         var request = $.ajax({
+                url: 'http://api.transparencia.org.br/sandbox/v1/candidatos?estado=BR&partido=&cargo=1&_limit=500',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('APP-Token', publicToken)
+                }
+            });
+
+         $.when(request).done(function (presidentes) {
+             if (presidentes) {
+                 presidentes.forEach(function (presidente) {
+
+                    var presidenteRequest =  $.ajax({
+                         url: 'http://api.transparencia.org.br/sandbox/v1/candidatos/'+presidente.id+'/doadores',
+                         beforeSend: function (xhr) {
+                             xhr.setRequestHeader('APP-Token', publicToken)
+                         }
+                    });
+
+                    $.when(presidenteRequest).done(function (doacoes) {
+                        doadores.push({ candidado: presidente, doacoes: doacoes });
+                    }).always(function (doacoes) {
+                        if (doadores.length == presidentes.length) {
+                            $("#listView").kendoListView({
+                                dataSource: {
+                                    data: doadores
+                                },
+                                template: kendo.template($("#template").html()),
+                                change: function () {
+                                    var index = this.select().index(),
+                                     dataItem = this.dataSource.view()[index];
+                                    if (dataItem) {
+                                        dataItem.doacoes = dataItem.doacoes.map(function (item) {
+                                            if (item.montante) {
+                                                console.log(item.montante);
+                                                item.montante = item.montante.replace('.', ',');
+
+                                                item.montante = parseFloat(item.montante).toFixed(2);
+                                                console.log(item.montante);
+                                            }
+                                      
+                                            return item;
+                                        })
+                                        $('#chartdiv').show();
+                                        var chart = AmCharts.makeChart("chartdiv", {
+                                            "type": "pie",
+                                            "titles": [
+                                  {
+                                      "size": 15
+                                  }
+                                            ],
+                                            "theme": "none",
+                                            "dataProvider": dataItem.doacoes,
+                                            "valueField": "montante",
+                                            "titleField": "nome",
+                                            "outlineAlpha": 0.4,
+                                            "depth3D": 15,
+                                            "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+                                            "angle": 30,
+                                            "exportConfig": {
+                                                menuItems: [{
+                                                    icon: 'http://www.amcharts.com/lib/3/images/export.png',
+                                                    format: 'png'
+                                                }]
+                                            }
+                                        });
+
+
+                                    }
+                                },
+                                selectable: 'single',
+                            });
+                        }
+                    })
+                 })
+             }
+         });
+    }
+
+    $(document).ready(start);
+
+</script>
+
+<style scoped>
+    .demo-section {
+        margin: 20px auto;
+        border: 0;
+        background: none;
+        width: 960px;
+    }
+
+    #listView {
+        margin-bottom: -1px;
+        min-width: 960px;
+        min-height: 510px;
+    }
+
+    .product {
+        float: left;
+        position: relative;
+        width: 111px;
+        height: 170px;
+        margin: 0;
+        padding: 5px;
+    }
+
+        .product img {
+            width: 110px;
+            height: 130px;
+        }
+
+        .product h3 {
+            margin: 0;
+            padding: 3px 5px 0 0;
+            max-width: 180px;
+            overflow: hidden;
+            line-height: 1.1em;
+            font-size: .9em;
+            font-weight: normal;
+            text-transform: uppercase;
+            color: #999;
+        }
+
+        .product p {
+            visibility: hidden;
+        }
+
+        .product:hover p {
+            visibility: visible;
+            position: absolute;
+            width: 120px;
+            height: 110px;
+            top: 0;
+            margin: 0;
+            padding: 0;
+            line-height: 110px;
+            vertical-align: middle;
+            text-align: left;
+            color: #fff;
+            background-color: rgba(0,0,0,0.75);
+            transition: background .2s linear, color .2s linear;
+            -moz-transition: background .2s linear, color .2s linear;
+            -webkit-transition: background .2s linear, color .2s linear;
+            -o-transition: background .2s linear, color .2s linear;
+        }
+
+    .k-listview:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+    }
+</style>
+
+
+<style>
+    #chartdiv {
+        width: 100%;
+        height: 500px;
+        font-size: 11px;
+        display:none;
+    }
+</style>
+
+
+
+
