@@ -291,7 +291,7 @@ a:hover {
                             $('#foto_template').attr('src', retorno.foto);
                             $('#nome_template').text(retorno.nome);
                             $('#escolaridade_template').text(retorno.instrucao);
-                            $('#estimativa_template').text('R$ ' + retorno.previsao);
+                            $('#estimativa_template').text('R$ ' + formatReal(parseFloat(retorno.previsao).toFixed(2)));
                             if (retorno.reeleicao) {
                                 $('#reeleicao_template').text("Sim")
                             } else {
@@ -313,7 +313,7 @@ a:hover {
                                      total += parseFloat(bem.montante)
                                 })
 
-                                $('#bens_declarados_template').text("R$ " + total);
+                                $('#bens_declarados_template').text("R$ " + formatReal(total));
                                 localStorage.setItem("bens", JSON.stringify(bens));
                             });
                         }
@@ -336,5 +336,17 @@ a:hover {
 
 
         });
+
+        function getMoney(str) {
+            return parseInt(str.replace(/[\D]+/g, ''));
+        }
+        function formatReal(int) {
+            var tmp = int + '';
+            tmp = tmp.replace(/([0-9]{2})$/g, ",$1");
+            if (tmp.length > 6)
+                tmp = tmp.replace(/([0-9]{3}),([0-9]{2}$)/g, ".$1,$2");
+
+            return tmp;
+        }
 
     </script>

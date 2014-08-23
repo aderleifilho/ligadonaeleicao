@@ -52,7 +52,7 @@
     </p>
 
     <p>
-        <strong>Bens Declarados</strong> 
+        <strong>Evolução de bens</strong> 
         <br />
         <div id="chartdiv"></div>	
     </p>
@@ -60,6 +60,8 @@
 </article>
 
 <script>
+    var urlPadrao = "http://api.transparencia.org.br:80/sandbox/v1/"
+    var publicToken = "O0BkkGjZhhF2"
 
     var inflacao = [
         {
@@ -124,12 +126,24 @@
 
         function zoomChart() {
             if (chart.zoomToIndexes) {
-                chart.zoomToIndexes(130, chartData.length - 1);
+                chart.zoomToIndexes(130, dataSource.length - 1);
             }
         }
 
     }
    
+    function buscarEstatistica(idCandidato) {
+        var requestEstatistica = $.ajax({
+            url: urlPadrao + "candidatos/" + idCandidato + "/estatistias",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("APP-Token", publicToken);
+            }
+
+        });
+        $.when(requestEstatistica).done(function (estatistica) {
+            console.log(estatistica)
+        });
+    }
 
 
     $(document).ready(function () {
@@ -150,11 +164,13 @@
                 $('#processos').html(candidato.processos);
 
                 var bens = localStorage.getItem("bens");
+
                 if (bens) {
                     try {
                         bens = JSON.parse(bens);
+                        buscarEstatistica(candidato.id);
                         bens.forEach(function(item){
-                            item.montante =  parseFloat(item.montante);
+                            item.montante = parseFloat(item.montante);
                         })
                         console.log(bens);
                         var dataSource = new kendo.data.DataSource({
@@ -190,6 +206,9 @@
 
                                 return retornaValorCorrigidoVariacao(data)
                             });
+                            retornoAgrupado = retornoAgrupado.filter(function (item) {
+                                return item != undefined
+                            })
 
                             gerarGraficoBens(retornoAgrupado);
 
