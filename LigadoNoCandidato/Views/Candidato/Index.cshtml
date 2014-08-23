@@ -154,6 +154,10 @@ a:hover {
         }
 
         filtros.buscarCandidatos = function (estado, partido, cargo) {
+
+            if (cargo == "1" && estado == "") {
+                cargo = "BR";
+            }
             return new kendo.data.DataSource({
                 transport: {
                     read: {
@@ -165,7 +169,7 @@ a:hover {
 
                     }
                 },
-                pageSize: 15,
+                pageSize: 20,
 
                 error: function (e) {
                     console.log("erro");

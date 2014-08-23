@@ -316,6 +316,7 @@
     <Content Include="Views\Candidato\Index.cshtml" />
     <Content Include="Views\Candidato\Grafico.cshtml" />
     <Content Include="Views\Candidato\Detalhe.cshtml" />
+    <Content Include="Views\Candidato\Doacao.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
