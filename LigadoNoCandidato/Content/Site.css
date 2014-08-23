@@ -642,6 +642,25 @@ tr.pager td {
 ********************/
 @media only screen and (max-width: 850px) {
 
+    .selCargo {
+    width: 100% !important;
+}
+
+.selPartido {
+    width: 100% !important;
+}
+
+.selEstado {
+    width: 100% !important;
+}
+
+.selEstado h4, .selPartido h4, .selCargo h4 {
+    font-size: 24px;
+    margin-bottom:10px;
+    color: #fff;
+    text-transform: uppercase;
+}
+
     /* header
     ----------------------------------------------------------*/
     header .float-left,
@@ -804,6 +823,8 @@ tr.pager td {
             margin: 0;
         }
 }
+
+
 
 #candidatos {
     margin-top:200px;
