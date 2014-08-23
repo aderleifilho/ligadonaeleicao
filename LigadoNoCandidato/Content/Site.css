@@ -843,9 +843,19 @@ tr.pager td {
 }
 
 .detalhe-info {
+    min-width: 700px;
     float: left;
 }
 
 label {
     display: inline;
+}
+
+.detalhe-categoria {
+    font-size: 28px;
+}
+
+.grafico {
+    width: 640px;
+    margin: 0 auto;
 }
