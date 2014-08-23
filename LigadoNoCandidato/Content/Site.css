@@ -587,6 +587,42 @@ tr.pager td {
 }
 
 
+.index-content {
+    width: 960px;
+    height: 500px;
+}
+
+.selCargo {
+    width: 300px !important;
+    float: left;
+    background-color: blue !important;
+    padding: 10px !important; 
+    text-align: center;
+}
+
+.selPartido {
+    width: 300px !important;
+    float: left;
+    background-color: blue !important;
+    padding: 10px !important; 
+}
+
+.selEstado {
+    width: 300px !important;
+    float: left;
+    background-color: blue !important;
+    padding: 10px !important; 
+}
+
+.selEstado .selPartido .selCargo h1 {
+    margin-bottom:10px;
+}
+
+
+
+
+
+
 /********************
 *   Mobile Styles   *
 ********************/
